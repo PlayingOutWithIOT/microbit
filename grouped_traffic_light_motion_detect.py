@@ -120,27 +120,32 @@ while True:
             
         # Display the current pixel data on the Neopixel strip
         np.show()
-    else:
-        if play == 1:
+    elif play == 1:
+        # this section of code is run when the player has moved too much
+        # and the lights indicate this by spinning
             
-            display.show("X")
+        display.show("X")
     
-            red = random.randrange(0, 255)
-            green = random.randrange(0, 255)
-            blue = random.randrange(0, 255)
+        red = random.randrange(0, 255)
+        green = random.randrange(0, 255)
+        blue = random.randrange(0, 255)
+        
+        # your code
+        elapsed_time = running_time() - start_time
+        if elapsed_time > 100:
+            start_time = running_time()
+            swirlCount = swirlCount + 1
+
+        for pixel_id in range(0, 24):
+            np[pixel_id] = (0, 0, 0)
             
-            # your code
-            elapsed_time = running_time() - start_time
-            if elapsed_time > 300:
-                start_time = running_time()
-                swirlCount = swirlCount + 1
+        for pixel_id in range(0, 8):
+            np[(pixel_id + swirlCount + 0) % 24] = (255, 0, 0)
+            np[(pixel_id + swirlCount + 8) % 24] = (128, 255, 0)
+            np[(pixel_id + swirlCount + 16) % 24] = (0, 255, 255)
+        np.show()
 
-            for pixel_id in range(0, 24):
-                np[pixel_id] = (0, 0, 0)
-                
-            for pixel_id in range(0, 8):
-                np[(pixel_id + swirlCount + 0) % 24] = (255, 0, 0)
-                np[(pixel_id + swirlCount + 8) % 24] = (128, 255, 0)
-                np[(pixel_id + swirlCount + 16) % 24] = (0, 255, 255)
-            np.show()
-
+        if accelerometer.was_gesture("shake"):
+            print("Restart")
+            play = 0
+            countdown = 24
