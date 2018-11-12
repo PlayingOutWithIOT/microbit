@@ -49,12 +49,13 @@ while True:
                 
     # always receive the radio broadcasts
     incoming = radio.receive()
-    if incoming:
+    while incoming != None:
         print("Incoming")
         a, b, c = incoming.split(',')
         receiveCount = int(a)
         receiveColour = int(b)
         receiveState = int(c)
+        incoming = radio.receive()
 
         # update our values if it's a broadcast we haven't seen
         if receiveCount != count:
