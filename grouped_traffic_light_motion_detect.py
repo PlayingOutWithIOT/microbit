@@ -63,6 +63,11 @@ while True:
             colour = receiveColour
             
     if play == 0:
+        elapsed_time = running_time() - start_time
+        if elapsed_time > 100:
+            start_time = running_time()
+            updateState()
+
         x = accelerometer.get_x()
         y = accelerometer.get_y()
         z = accelerometer.get_z()
@@ -146,7 +151,7 @@ while True:
             np[(pixel_id + swirlCount + 16) % 24] = (0, 255, 255)
         np.show()
 
-        if accelerometer.was_gesture("shake"):
-            print("Restart")
-            play = 0
-            countdown = 24
+        #if accelerometer.was_gesture("shake"):
+        #    print("Restart")
+        #    play = 0
+        #    countdown = 24
