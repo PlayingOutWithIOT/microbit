@@ -14,7 +14,7 @@ public class MicrobitSerialInterface: MonoBehaviour {
     private SerialPort stream = null;
     private String m_comPort;
     private Thread mThread;
-    bool m_isRunning = false;
+    volatile bool m_isRunning = false;
 
     public Text m_text;
     String m_string;
@@ -98,6 +98,7 @@ public class MicrobitSerialInterface: MonoBehaviour {
     
     private void OnDestroy()
     {
+        stream.Close();
         m_isRunning = false;
 
         while (mThread.IsAlive)
@@ -113,3 +114,10 @@ public class MicrobitSerialInterface: MonoBehaviour {
         m_text.text = m_string;
     }
 }
+
+/*
+if (!Application.isEditor)
+{
+     System.Diagnostics.Process.GetCurrentProcess().Kill();
+}
+*/
