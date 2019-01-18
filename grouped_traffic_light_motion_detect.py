@@ -55,13 +55,14 @@ while True:
         receiveCount = int(a)
         receiveColour = int(b)
         receiveState = int(c)
-        incoming = radio.receive()
-
+       
         # update our values if it's a broadcast we haven't seen
         if receiveCount != count:
             count = receiveCount
             colour = receiveColour
-            
+        
+        incoming = radio.receive()
+   
     if play == 0:
         elapsed_time = running_time() - start_time
         if elapsed_time > 100:
