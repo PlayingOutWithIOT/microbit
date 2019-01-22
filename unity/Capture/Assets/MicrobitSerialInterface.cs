@@ -92,13 +92,19 @@ public class MicrobitSerialInterface: MonoBehaviour {
             }
         }
 
-        stream.Close();
+        // If the thread wasn't closed by the UX thread 
+        if (stream.IsOpen)
+        {
+            stream.Close();
+        }
         Debug.Log("My own thread ended with " + checkCount + " iterations.");
     }
     
     private void OnDestroy()
     {
+        // CLose the thread
         stream.Close();
+
         m_isRunning = false;
 
         while (mThread.IsAlive)
