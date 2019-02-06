@@ -22,6 +22,10 @@ public class MicrobitSerialInterface: MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
+        // Set the text
+        m_string = "Waiting for micro:bits";
+
+        // Get the COM port
         XmlDocument xmlDoc = new XmlDocument();
 
         string xml = File.ReadAllText("setup.xml");
@@ -42,6 +46,8 @@ public class MicrobitSerialInterface: MonoBehaviour {
 
     void RunThread(object data)
     {
+        string path = "output.txt";
+
         var threadController = (MicrobitSerialInterface)data;
 
         // Open the com port e.g. "\\.\COM12"
@@ -80,10 +86,22 @@ public class MicrobitSerialInterface: MonoBehaviour {
             {
                 if (stream.IsOpen)
                 {
+                    // Calculate the date time for this broadcast
+                    DateTime now = System.DateTime.Now;
+                    string dateAndTimeVar = now.ToString("yyyy/MM/dd HH:mm:ss");
+                    Debug.Log("COM port: " + dateAndTimeVar);
+
+
                     // Read the stream
                     string value = stream.ReadLine();
                     Debug.Log("Value: " + value);
                     m_string = value;
+
+
+                    // Write some text to a log file
+                    StreamWriter writer = new StreamWriter(path, true);
+                    writer.WriteLine(m_string);
+                    writer.Close();
                 }
             }
             catch (Exception e)
