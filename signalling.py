@@ -20,6 +20,7 @@ colour = 0
 
 receiveColour = 0
 receiveState = 0
+lastID = 0
 
 isAUp = 1
 isADown = 0
@@ -69,14 +70,17 @@ while True:
             nowStr = str(now)
                 
             # construct the serial message
-            serialMsg = recvMachineID + "," + nowStr + "," + debugRSSI + ",{:d}".format(colour)
+            serialMsg = recvMachineID + "," + nowStr + "," + debugRSSI + ",{:d}".format(receiveColour)
             print(serialMsg) # if we want to collect what is being sent
                 
             # db -47 is close
-            # db -100 is 12m 
-            if rssi > SignalStrength:
-                music.play('A')
-                colour = receiveColour
+            # db -100 is 12m
+            if lastID != recvMachineID:
+                lastID = recvMachineID
+            
+                if rssi > SignalStrength:
+                    music.play('A')
+                    colour = receiveColour
                     
         incoming = radio.receive_full()
 
@@ -85,13 +89,6 @@ while True:
         
     # ------------------------------------------
     # New algorithmn for detecting button presses
-    if not isA and not isB:
-        if isTogether:
-            wasTogether = 1
-            isTogether = 0
-        else:
-            wasTogether = 0
-
     isAUp = 0
     isBUp = 0
     
@@ -112,23 +109,30 @@ while True:
         isBDown = 0
     if isA and isB:
         isTogether = 1
+        
+    if not isA and not isB:
+        if isTogether:
+            wasTogether = 1
+            isTogether = 0
+        else:
+            wasTogether = 0
     # ------------------------------------------
     
     # were either A or B released?
-    if isAUp and (isTogether==0):
-        colour = 0
-        updateState()
-    if isBUp and (isTogether==0):
-        colour = 1
-        updateState()
     if wasTogether:
         colour = 2
+        updateState()
+    elif isAUp and (isTogether==0):
+        colour = 0
+        updateState()
+    elif isBUp and (isTogether==0):
+        colour = 1
         updateState()
         
     # Show a pattern
     if colour == 0:
-        display.show(Image.HAPPY)
+        display.show(Image.SQUARE)
     if colour == 1:
-        display.show(Image.SAD)
+        display.show(Image.CHESSBOARD)
     if colour == 2:
-        display.show(Image.SURPRISED)    
+        display.show(Image.ARROW_N)    
