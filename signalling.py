@@ -16,7 +16,6 @@ start_time = running_time()
 SignalStrength = -70
 
 global colour
-colour = 0
 
 receiveColour = 0
 receiveState = 0
@@ -40,9 +39,12 @@ machineID = "".join("%02x" % i for i in machine.unique_id())
 print("Machine ID: " + getMachine() )
 
 def updateState():
-    global colour
     message = getHeaderBytes() + getMachine() + ",{:d}".format(colour)
     radio.send(message)
+
+colour = -1
+updateState()
+colour = 0
 
 while True:
                 
@@ -64,7 +66,7 @@ while True:
             
             # print("Machine ID: " + a )
             receiveColour = int(b)
-
+            
             # get the date time
             now = utime.ticks_ms()
             nowStr = str(now)
@@ -75,12 +77,18 @@ while True:
                 
             # db -47 is close
             # db -100 is 12m
-            if lastID != recvMachineID:
+            if (colour != -1 ) and ( lastID != recvMachineID ):
                 lastID = recvMachineID
             
                 if rssi > SignalStrength:
-                    music.play('A')
+                    if colour == 0:
+                        music.play('A')
+                    if colour == 1:
+                        music.play('AG')
+                    if colour == 2:
+                        music.play('CC')
                     colour = receiveColour
+                    
                     
         incoming = radio.receive_full()
 

@@ -43,6 +43,8 @@ def updateState():
     # print(message)
     radio.send(message)
 
+updateState()
+
 while True:
                 
     # always receive the radio broadcasts
