@@ -10,6 +10,7 @@ import utime
 
 display.on()
 radio.on()
+radio.config(length=48)
 
 start_time = running_time()
 
@@ -29,22 +30,28 @@ isTogether = 0
 wasTogether = 0
 
 def getHeaderBytes():
-    return "msg"
+    return "msg:"
+    
+def getNullMachine():
+    return "x"
     
 def getMachine():
     return "".join("%02x" % i for i in machine.unique_id())
 
+def updateState(toMachine, sendColour):
+    message = getHeaderBytes() + getMachine() + "," + toMachine + ",{:d}".format(sendColour)
+    # print("send:" + message);
+    radio.send(message)
+    
+def myDebug(message):
+    print(message)
+    
 machineID = "".join("%02x" % i for i in machine.unique_id())
 
-print("Machine ID: " + getMachine() )
+myDebug("Machine ID: " + getMachine() )
 
-def updateState():
-    message = getHeaderBytes() + getMachine() + ",{:d}".format(colour)
-    radio.send(message)
-
-colour = -1
-updateState()
 colour = 0
+updateState( getMachine(), colour )      # send to yourself
 
 while True:
                 
@@ -59,10 +66,11 @@ while True:
         start = msg.find(getHeaderBytes());
         if( start > 0 ):
             finalmsg = msg[start + len(getHeaderBytes()):len(msg)-1]
-            
+            # print("recv:" + finalmsg)
+             
             debugRSSI = "{}".format(rssi)
 
-            recvMachineID, b = finalmsg.split(',')
+            recvMachineID, toMachine, b = finalmsg.split(',')
             
             # print("Machine ID: " + a )
             receiveColour = int(b)
@@ -72,24 +80,34 @@ while True:
             nowStr = str(now)
                 
             # construct the serial message
-            serialMsg = recvMachineID + "," + nowStr + "," + debugRSSI + ",{:d}".format(receiveColour)
-            print(serialMsg) # if we want to collect what is being sent
-                
-            # db -47 is close
-            # db -100 is 12m
-            if (colour != -1 ) and ( lastID != recvMachineID ):
-                lastID = recvMachineID
+            serialMsg = recvMachineID + "," + toMachine + "," + nowStr + "," + debugRSSI + ",{:d}".format(receiveColour)
+            print(serialMsg)
             
-                if rssi > SignalStrength:
-                    if colour == 0:
-                        music.play('A')
-                    if colour == 1:
-                        music.play('AG')
-                    if colour == 2:
-                        music.play('CC')
+            # We are forcing the colour to set as an ACK
+            if toMachine == getNullMachine():
+                myDebug("received broadcast: " + serialMsg)
+                
+                # print("received " + serialMsg) # if we want to collect what is being sent
+    
+                # Otherwise we need to make a choice to whether we set our colour 
+                if( lastID != recvMachineID ):
+                    lastID = recvMachineID
+                    
+                    # db -47 is close
+                    # db -100 is 12m
+                    if rssi > SignalStrength:
+                        colour = receiveColour
+                        updateState(recvMachineID,colour)    # Send the ACK
+                        if colour == 0:
+                            music.play('A')
+                        if colour == 1:
+                            music.play('AG')
+                        if colour == 2:
+                            music.play('CC')
+            else:
+                if toMachine == getMachine():
                     colour = receiveColour
-                    
-                    
+        
         incoming = radio.receive_full()
 
     isA = button_a.is_pressed()
@@ -126,16 +144,13 @@ while True:
             wasTogether = 0
     # ------------------------------------------
     
-    # were either A or B released?
+    # Send a new colour according to whether A or B released, A was released or B was released
     if wasTogether:
-        colour = 2
-        updateState()
+        updateState( getNullMachine(), 2)
     elif isAUp and (isTogether==0):
-        colour = 0
-        updateState()
+        updateState( getNullMachine(), 0)
     elif isBUp and (isTogether==0):
-        colour = 1
-        updateState()
+        updateState( getNullMachine(), 1)
         
     # Show a pattern
     if colour == 0:
