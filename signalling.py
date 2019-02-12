@@ -40,18 +40,19 @@ def getMachine():
 
 def updateState(toMachine, sendColour):
     message = getHeaderBytes() + getMachine() + "," + toMachine + ",{:d}".format(sendColour)
-    # print("send:" + message);
+    # myDebug("send:" + message);
     radio.send(message)
     
 def myDebug(message):
-    print(message)
+    test = 0
+    # print(message)
     
 machineID = "".join("%02x" % i for i in machine.unique_id())
 
 myDebug("Machine ID: " + getMachine() )
 
+updateState( getMachine(), -1 )      # send to yourself
 colour = 0
-updateState( getMachine(), colour )      # send to yourself
 
 while True:
                 
@@ -80,15 +81,13 @@ while True:
             nowStr = str(now)
                 
             # construct the serial message
-            serialMsg = recvMachineID + "," + toMachine + "," + nowStr + "," + debugRSSI + ",{:d}".format(receiveColour)
+            serialMsg = recvMachineID + "," + nowStr + "," + debugRSSI + ",{:d}".format(receiveColour)
             print(serialMsg)
-            
+                
             # We are forcing the colour to set as an ACK
             if toMachine == getNullMachine():
                 myDebug("received broadcast: " + serialMsg)
                 
-                # print("received " + serialMsg) # if we want to collect what is being sent
-    
                 # Otherwise we need to make a choice to whether we set our colour 
                 if( lastID != recvMachineID ):
                     lastID = recvMachineID

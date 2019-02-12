@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
 using System.Threading;
 using System.Xml;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MicrobitSerialInterface: MonoBehaviour {
@@ -18,6 +16,8 @@ public class MicrobitSerialInterface: MonoBehaviour {
 
     public Text m_text;
     String m_string;
+
+    //private Dictionary<string, int> dictionary = new Dictionary<string, int>();
 
     // Use this for initialization
     void Start ()
@@ -86,22 +86,47 @@ public class MicrobitSerialInterface: MonoBehaviour {
             {
                 if (stream.IsOpen)
                 {
-                    // Calculate the date time for this broadcast
-                    DateTime now = System.DateTime.Now;
-                    string dateAndTimeVar = now.ToString("yyyy/MM/dd HH:mm:ss");
-                    Debug.Log("COM port: " + dateAndTimeVar);
-
-
                     // Read the stream
-                    string value = stream.ReadLine();
-                    Debug.Log("Value: " + value);
+                    String value = stream.ReadLine();
                     m_string = value;
 
+        // -------------- Let's do some parsing on the string to make it more understandable
+        /*
+                    // Separate this if you want
+                    string[] splitArray = m_string.Split(',');
 
+                    string from = splitArray[0];
+                    string to = splitArray[1];
+                    int elapsedTime = Int32.Parse( splitArray[2] );
+                    string signalString = splitArray[3];
+                    string colour = splitArray[4];
+
+                    int startTime = 0;
+
+                    // Calculate the date time for this broadcast
+                    if (dictionary.ContainsKey(from))
+                    {
+                        int foundTime;
+                        dictionary.TryGetValue(from, out foundTime);
+                    }
+                    else
+                    {
+                        dictionary.Add(from, timeStamp);
+                    }
+        */
+                    DateTime now = System.DateTime.Now;
+                    string dateAndTimeVar = now.ToString("yyyy/MM/dd HH:mm:ss");
+                    //Debug.Log("COM port: " + dateAndTimeVar);
+
+                    // Format a new string with the date time
+                    m_string = dateAndTimeVar + "," + m_string;
+        
                     // Write some text to a log file
                     StreamWriter writer = new StreamWriter(path, true);
                     writer.WriteLine(m_string);
                     writer.Close();
+
+                    Debug.Log("Output: " + m_string);
                 }
             }
             catch (Exception e)
