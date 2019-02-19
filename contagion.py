@@ -6,7 +6,7 @@ import machine
 import music
 import utime
 
-SignalStrength = -90
+SignalStrength = -60
 
 display.on()
 radio.on()
@@ -27,7 +27,10 @@ def getMachine():
     return "".join("%02x" % i for i in machine.unique_id())
 
 def vibrate():
-    print("vibrate code here")
+    pin2.write_digital(1)
+    sleep(1000)
+    pin2.write_digital(0)
+    # print("vibrate code here")
 
 print("Machine ID: " + getMachine() )
 
@@ -121,7 +124,7 @@ while True:
     if colour == 0:
         display.show(dot)
     if colour == 1:
-        display.show(Image.SAD)
+        display.show(Image.SQUARE)
     if colour == 2:
-        display.show(Image.HAPPY)
+        display.show(Image.CHESSBOARD)
         

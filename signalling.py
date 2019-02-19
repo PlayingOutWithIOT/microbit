@@ -5,6 +5,7 @@ import random
 import machine
 import music
 import utime
+import time
 
 # print("Starting up Play:bit")
 
@@ -100,9 +101,11 @@ while True:
                         if colour == 0:
                             music.play('A')
                         if colour == 1:
-                            music.play('AG')
+                            pin2.write_digital(1)
+                            sleep(1000)
+                            pin2.write_digital(0)
                         if colour == 2:
-                            music.play('CC')
+                            music.play('AG')
             else:
                 if toMachine == getMachine():
                     colour = receiveColour
@@ -142,13 +145,13 @@ while True:
         else:
             wasTogether = 0
     # ------------------------------------------
-    
+
     # Send a new colour according to whether A or B released, A was released or B was released
     if wasTogether:
         updateState( getNullMachine(), 2)
     elif isAUp and (isTogether==0):
         updateState( getNullMachine(), 0)
-    elif isBUp and (isTogether==0):
+    elif isBUp and (isTogether==0): 
         updateState( getNullMachine(), 1)
         
     # Show a pattern
