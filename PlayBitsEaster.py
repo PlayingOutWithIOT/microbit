@@ -39,7 +39,8 @@ class mpr121:
         self.write_reg(self.SOFTRESET, 0x63)
         sleep(1)
         self.write_reg(self.ECR, 0x00)
-        self.set_thresholds(20, 15)
+        # self.set_thresholds(20, 15)
+        self.set_thresholds(44, 30)
         self.write_reg(self.MHDR, 0x01)
         self.write_reg(self.NHDR, 0x01)
         self.write_reg(self.NCLR, 0x0E)
@@ -89,8 +90,11 @@ while True:
             if n & (1 << pin):
                 # this code is triggered when a certain pin is touched
                 # e.g. if you want to repsond to pin 5 use the code
-                # if i == 5:
                 
+                if pin == 0:
+                    angle = 0
+                    set_servo_angle(pin1, angle)
+        
                 # Row (x) is pin number modulus 5
                 x = pin % 5
                 # Column (y) is (int)(pin number divided by 5)                
